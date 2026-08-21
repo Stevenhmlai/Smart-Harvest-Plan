@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Smart Harvest Plan</title>
+
+<!-- Home-screen / app-like behaviour -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Smart Harvest">
+<meta name="theme-color" content="#1F4E3D">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231F4E3D'/%3E%3Cpath d='M50 78 C50 78 30 62 30 44 C30 30 40 22 50 30 C60 22 70 30 70 44 C70 62 50 78 50 78 Z' fill='%23C98A2C'/%3E%3Cline x1='50' y1='30' x2='50' y2='78' stroke='%231F4E3D' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231F4E3D'/%3E%3Cpath d='M50 78 C50 78 30 62 30 44 C30 30 40 22 50 30 C60 22 70 30 70 44 C70 62 50 78 50 78 Z' fill='%23C98A2C'/%3E%3Cline x1='50' y1='30' x2='50' y2='78' stroke='%231F4E3D' stroke-width='3'/%3E%3C/svg%3E">
+
+<style>
+:root{
+  --bg: #F6EFE1;
+  --paper: #FFFFFF;
+  --ink: #2A2620;
+  --muted: #8A8073;
+  --line: #E7DCC6;
+  --green: #1F4E3D;
+  --green-soft: #E7EFEA;
+  --gold: #C98A2C;
+  --gold-soft: #F6E8CE;
+  --growth: #90A5B0;
+  --growth-soft: #E9EEF0;
+  --payout: #2F6D4F;
+  --payout-soft: #E3EFE8;
+  --danger: #B5482F;
+  --radius: 18px;
+  --serif: Iowan Old Style, "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  padding-bottom: 48px;
+  min-height: 100vh;
+}
+.wrap{ max-width: 480px; margin: 0 auto; padding: 0 16px; }
+
+/* ---------- Header ---------- */
+header.app{
+  padding: max(18px, env(safe-area-inset-top)) 16px 14px;
+  background: var(--green);
+  color: #F6EFE1;
+}
+header.app .inner{ max-width: 480px; margin: 0 auto; }
+.eyebrow{
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: #C9D8CE; font-weight: 600; margin: 0 0 2px;
+}
+h1.title{
+  font-family: var(--serif); font-weight: 500; font-size: 26px; margin: 0;
+  letter-spacing: 0.2px;
+}
+
+/* ---------- Hero KPI ---------- */
+.hero{
+  margin-top: 14px;
+  background: linear-gradient(165deg, #24594569, #1F4E3D);
+  background-color: var(--green);
+  border-radius: var(--radius);
+  padding: 20px 20px 16px;
+  color: #F6EFE1;
+}
+.hero .label{ font-size: 12px; color:#BFD3C6; text-transform:uppercase; letter-spacing:.1em; font-weight:600; }
+.hero .value{
+  font-family: var(--serif); font-size: 40px; line-height:1.1; margin: 4px 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+.hero .sub{ font-size: 13px; color:#D8E6DB; }
+.hero .sub b{ color:#F6E8CE; font-weight:700; }
+.stat-row{
+  display:flex; gap:10px; margin-top:16px;
+}
+.stat{
+  flex:1; background: rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.stat .k{ font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:#BFD3C6; }
+.stat .v{ font-family: var(--mono); font-size:15px; font-weight:600; margin-top:3px; color:#F6EFE1; }
+
+/* ---------- Cards ---------- */
+.card{
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 14px;
+}
+.card h2{
+  font-family: var(--serif); font-weight:600; font-size:17px; margin:0 0 12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.card h2 .tag{ font-family: var(--sans); font-size:10.5px; color:var(--muted); font-weight:500; text-transform:uppercase; letter-spacing:.05em;}
+
+/* ---------- Timeline (signature element) ---------- */
+.timeline{ display:flex; gap:2px; margin: 4px 0 10px; border-radius: 8px; overflow:hidden; }
+.timeline .seg{ flex:1; height:26px; position:relative; }
+.timeline .seg.contribution{ background: var(--gold); }
+.timeline .seg.growth{ background: var(--growth); }
+.timeline .seg.payout{ background: var(--payout); }
+.timeline .seg.mature{ background: var(--green); }
+.legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--muted); }
+.legend span{ display:inline-flex; align-items:center; gap:5px; }
+.legend i{ width:9px; height:9px; border-radius:2px; display:inline-block; }
+.legend .c1{ background:var(--gold);} .legend .c2{ background:var(--growth);} .legend .c3{ background:var(--payout);}
+
+/* ---------- Form ---------- */
+.field{ margin-bottom: 14px; }
+.field label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink); margin-bottom:6px; }
+.field .hint{ font-size:11px; color:var(--muted); margin-top:4px; }
+select, input[type=number], input[type=month]{
+  width:100%; padding: 11px 12px; font-size:15px; font-family: var(--sans);
+  border-radius: 10px; border: 1px solid var(--line); background: #FFFDF9;
+  color: var(--ink); appearance:none; -webkit-appearance:none;
+}
+select{
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%238A8073' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position: right 12px center;
+  padding-right: 34px;
+}
+.seg-control{ display:flex; background:#F0E7D4; border-radius: 10px; padding:3px; gap:3px; }
+.seg-control button{
+  flex:1; border:none; background:transparent; padding:9px 0; font-size:14px; font-weight:600;
+  color: var(--muted); border-radius:8px; font-family:var(--sans);
+}
+.seg-control button.active{ background: var(--green); color:#fff; }
+.two-col{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+
+details.adv{ margin-top: 4px; }
+details.adv summary{
+  cursor:pointer; font-size:13px; font-weight:600; color: var(--green);
+  list-style:none; display:flex; align-items:center; gap:6px; padding: 4px 0;
+}
+details.adv summary::-webkit-details-marker{ display:none; }
+details.adv summary:before{ content:"▸"; font-size:11px; transition: transform .15s; }
+details.adv[open] summary:before{ transform: rotate(90deg); }
+details.adv .inner{ padding-top: 12px; }
+
+/* ---------- Chart ---------- */
+.chart-wrap{ width:100%; }
+svg.chart{ width:100%; height:auto; display:block; }
+.axis-label{ font-size:9px; fill:var(--muted); font-family:var(--sans); }
+.chart-note{ font-size:11px; color:var(--muted); margin-top:8px; }
+
+/* ---------- Table ---------- */
+table.yearly{ width:100%; border-collapse: collapse; font-family: var(--mono); font-size:12px; }
+table.yearly th{
+  text-align:right; font-family:var(--sans); font-size:10.5px; text-transform:uppercase;
+  color:var(--muted); font-weight:600; padding:6px 6px; border-bottom:1px solid var(--line);
+}
+table.yearly th:first-child, table.yearly td:first-child{ text-align:left; }
+table.yearly td{ text-align:right; padding:7px 6px; border-bottom:1px solid #F1EADB; }
+table.yearly tr.phase-contribution td:first-child{ border-left:3px solid var(--gold); padding-left:5px;}
+table.yearly tr.phase-growth td:first-child{ border-left:3px solid var(--growth); padding-left:5px;}
+table.yearly tr.phase-payout td:first-child{ border-left:3px solid var(--payout); padding-left:5px;}
+
+/* ---------- Footer ---------- */
+.disclaimer{
+  font-size: 11px; color: var(--muted); line-height:1.5; margin-top:18px; padding: 0 4px;
+}
+.appnote{
+  font-size: 11px; color: var(--muted); text-align:center; margin-top: 22px; line-height:1.6;
+}
+.appnote b{ color: var(--ink); }
+
+@media (min-width: 520px){
+  .wrap{ padding: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="inner">
+    <p class="eyebrow">Buffalo Investment Agency</p>
+    <h1 class="title">Smart Harvest Plan</h1>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="label">Projected balance at Year 20</div>
+    <div class="value" id="heroValue">RM 0</div>
+    <div class="sub">that's <b id="heroMultiple">0.0x</b> the capital invested, plus <span id="heroWithdrawalsInline">RM 0</span> already paid out along the way</div>
+    <div class="stat-row">
+      <div class="stat"><div class="k">Capital Invested</div><div class="v" id="statCapital">RM 0</div></div>
+      <div class="stat"><div class="k">Total Payouts</div><div class="v" id="statWithdrawals">RM 0</div></div>
+      <div class="stat"><div class="k">Plan Length</div><div class="v" id="statYears">20 yrs</div></div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="card">
+    <h2>Plan Timeline <span class="tag" id="timelineTag">Years 1–20</span></h2>
+    <div class="timeline" id="timelineBar"></div>
+    <div class="legend">
+      <span><i class="c1"></i>Contribution</span>
+      <span><i class="c2"></i>Growth-only</span>
+      <span><i class="c3"></i>10% annual payout</span>
+    </div>
+  </div>
+
+  <!-- INPUTS -->
+  <div class="card">
+    <h2>Your Numbers</h2>
+
+    <div class="field">
+      <label>Investment frequency</label>
+      <div class="seg-control" id="freqControl">
+        <button type="button" data-val="Monthly" class="active">Monthly</button>
+        <button type="button" data-val="Annual">Annual</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label id="amountLabel">Monthly investment (RM)</label>
+      <select id="amount"></select>
+      <input type="number" id="amountCustom" placeholder="Enter amount (RM)" inputmode="numeric" min="0" step="50" style="display:none; margin-top:8px;">
+    </div>
+
+    <div class="field">
+      <label>Start month</label>
+      <input type="month" id="startDate" value="2026-08">
+    </div>
+
+    <details class="adv">
+      <summary>Advanced assumptions</summary>
+      <div class="inner">
+        <div class="two-col">
+          <div class="field">
+            <label>Equity return (% p.a.)</label>
+            <input type="number" id="equityReturn" value="8" step="0.1" min="0" max="30">
+          </div>
+          <div class="field">
+            <label>Bond return (% p.a.)</label>
+            <input type="number" id="bondReturn" value="3" step="0.1" min="0" max="30">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>Equity allocation (%)</label>
+            <input type="number" id="equityAlloc" value="90" step="1" min="0" max="100">
+          </div>
+          <div class="field">
+            <label>Bond allocation (%)</label>
+            <input type="number" id="bondAlloc" value="10" step="1" min="0" max="100">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>Contribution years</label>
+            <input type="number" id="contribYears" value="6" step="1" min="1" max="15">
+          </div>
+          <div class="field">
+            <label>Growth-only years</label>
+            <input type="number" id="growthYears" value="4" step="1" min="0" max="15">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label>Payout years</label>
+            <input type="number" id="payoutYears" value="10" step="1" min="1" max="20">
+          </div>
+          <div class="field">
+            <label>Annual payout (% of capital)</label>
+            <input type="number" id="payoutRate" value="10" step="0.5" min="0" max="50">
+          </div>
+        </div>
+        <div class="hint" id="allocWarning" style="display:none; color:var(--danger); font-weight:600;">Equity % + Bond % should total 100%.</div>
+      </div>
+    </details>
+  </div>
+
+  <!-- CHART -->
+  <div class="card">
+    <h2>Fund Balance Over Time <span class="tag">RM, year-end</span></h2>
+    <div class="chart-wrap"><svg class="chart" id="chartSvg" viewBox="0 0 440 200"></svg></div>
+    <div class="chart-note">Gold shading = payout years, when 10% of capital is withdrawn annually.</div>
+  </div>
+
+  <!-- YEARLY TABLE -->
+  <div class="card">
+    <h2>Year-by-Year <span class="tag">tap to expand</span></h2>
+    <details class="adv">
+      <summary>Show full 20-year table</summary>
+      <div class="inner">
+        <table class="yearly" id="yearlyTable">
+          <thead>
+            <tr><th>Yr</th><th>Contribution</th><th>Payout</th><th>Balance</th></tr>
+          </thead>
+          <tbody id="yearlyBody"></tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <p class="disclaimer">
+    Projections are illustrative only, based on the assumed Equity/Bond returns above. Actual unit trust returns are not guaranteed and will vary with market performance. This is a planning tool, not a guarantee of future results.
+  </p>
+
+  <p class="appnote">
+    <b>Tip:</b> Add this page to your Home Screen (Share → Add to Home Screen on iPhone, or ⋮ menu → Add to Home screen on Android) to open it like an app anytime, even offline.
+  </p>
+
+</div>
+
+<script>
+(function(){
+  const MONTHLY_OPTS = [2000,3000,5000,10000,20000];
+  const ANNUAL_OPTS  = [24000,36000,60000,100000,200000];
+
+  const els = {
+    amount: document.getElementById('amount'),
+    amountCustom: document.getElementById('amountCustom'),
+    amountLabel: document.getElementById('amountLabel'),
+    startDate: document.getElementById('startDate'),
+    equityReturn: document.getElementById('equityReturn'),
+    bondReturn: document.getElementById('bondReturn'),
+    equityAlloc: document.getElementById('equityAlloc'),
+    bondAlloc: document.getElementById('bondAlloc'),
+    contribYears: document.getElementById('contribYears'),
+    growthYears: document.getElementById('growthYears'),
+    payoutYears: document.getElementById('payoutYears'),
+    payoutRate: document.getElementById('payoutRate'),
+    allocWarning: document.getElementById('allocWarning'),
+  };
+
+  let freq = 'Monthly';
+
+  function fmtRM(n){
+    n = Math.round(n);
+    return 'RM ' + n.toLocaleString('en-MY');
+  }
+
+  function populateAmountOptions(preserveCustom){
+    const opts = freq === 'Monthly' ? MONTHLY_OPTS : ANNUAL_OPTS;
+    els.amount.innerHTML = '';
+    opts.forEach(function(v){
+      const o = document.createElement('option');
+      o.value = v; o.textContent = 'RM ' + v.toLocaleString('en-MY');
+      els.amount.appendChild(o);
+    });
+    const customOpt = document.createElement('option');
+    customOpt.value = 'custom'; customOpt.textContent = 'Custom amount…';
+    els.amount.appendChild(customOpt);
+
+    if(preserveCustom && els.amount.querySelector('option[value="custom"]')){
+      els.amount.value = 'custom';
+      els.amountCustom.style.display = 'block';
+    } else {
+      els.amount.value = freq === 'Monthly' ? 5000 : 60000;
+      els.amountCustom.style.display = 'none';
+    }
+    els.amountLabel.textContent = (freq === 'Monthly' ? 'Monthly investment (RM)' : 'Annual investment (RM)');
+  }
+
+  function getAmount(){
+    if(els.amount.value === 'custom'){
+      return parseFloat(els.amountCustom.value) || 0;
+    }
+    return parseFloat(els.amount.value) || 0;
+  }
+
+  els.amount.addEventListener('change', function(){
+    els.amountCustom.style.display = (els.amount.value === 'custom') ? 'block' : 'none';
+    if(els.amount.value === 'custom' && !els.amountCustom.value){
+      els.amountCustom.focus();
+    }
+    run();
+  });
+  els.amountCustom.addEventListener('input', run);
+
+  document.getElementById('freqControl').addEventListener('click', function(e){
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    freq = btn.dataset.val;
+    [...this.children].forEach(b => b.classList.toggle('active', b === btn));
+    const wasCustom = (els.amount.value === 'custom');
+    populateAmountOptions(wasCustom);
+    run();
+  });
+
+  ['startDate','equityReturn','bondReturn','equityAlloc','bondAlloc',
+   'contribYears','growthYears','payoutYears','payoutRate'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', run);
+    document.getElementById(id).addEventListener('change', run);
+  });
+
+  function simulate(params){
+    const {amount, equityReturn, bondReturn, equityAlloc, bondAlloc,
+           contribYears, growthYears, payoutYears, payoutRate} = params;
+
+    const totalMonths = (contribYears + growthYears + payoutYears) * 12;
+    const totalCapital = (freq === 'Monthly') ? amount * 12 * contribYears : amount * contribYears;
+
+    const eqRateM = equityReturn / 12;
+    const bdRateM = bondReturn / 12;
+
+    let equityBal = 0, bondBal = 0;
+    const monthly = [];
+    for(let m = 1; m <= totalMonths; m++){
+      const year = Math.ceil(m / 12);
+      let phase;
+      if(year <= contribYears) phase = 'Contribution';
+      else if(year <= contribYears + growthYears) phase = 'Growth';
+      else phase = 'Payout';
+
+      let contribution = 0;
+      if(phase === 'Contribution'){
+        if(freq === 'Monthly') contribution = amount;
+        else if((m - 1) % 12 === 0) contribution = amount;
+      }
+      const equityContrib = contribution * equityAlloc;
+      const bondContrib = contribution * bondAlloc;
+
+      let withdrawal = 0;
+      if(phase === 'Payout' && (m - 1) % 12 === 0){
+        withdrawal = payoutRate * totalCapital;
+      }
+      const priorEquity = equityBal, priorBond = bondBal;
+      let eqW = 0, bdW = 0;
+      if(withdrawal > 0 && (priorEquity + priorBond) > 0){
+        eqW = withdrawal * priorEquity / (priorEquity + priorBond);
+        bdW = withdrawal - eqW;
+      }
+      equityBal = (priorEquity + equityContrib - eqW) * (1 + eqRateM);
+      bondBal = (priorBond + bondContrib - bdW) * (1 + bdRateM);
+
+      monthly.push({m, year, phase, contribution, withdrawal, total: equityBal + bondBal});
+    }
+
+    const years = [];
+    for(let y = 1; y <= contribYears + growthYears + payoutYears; y++){
+      const yearRows = monthly.filter(r => r.year === y);
+      const contrib = yearRows.reduce((s,r)=>s+r.contribution,0);
+      const wd = yearRows.reduce((s,r)=>s+r.withdrawal,0);
+      const bal = yearRows[yearRows.length-1].total;
+      const phase = yearRows[yearRows.length-1].phase;
+      years.push({year:y, contrib, withdrawal:wd, balance:bal, phase});
+    }
+
+    const totalWithdrawals = years.reduce((s,y)=>s+y.withdrawal,0);
+    const finalBalance = years[years.length-1].balance;
+    const totalValue = totalWithdrawals + finalBalance;
+    const multiple = totalCapital > 0 ? totalValue / totalCapital : 0;
+
+    return {years, totalCapital, totalWithdrawals, finalBalance, totalValue, multiple,
+            contribYears, growthYears, payoutYears};
+  }
+
+  function drawTimeline(sim){
+    const bar = document.getElementById('timelineBar');
+    bar.innerHTML = '';
+    const totalYears = sim.contribYears + sim.growthYears + sim.payoutYears;
+    sim.years.forEach(function(y, idx){
+      const seg = document.createElement('div');
+      let cls = 'seg ';
+      if(idx === sim.years.length - 1) cls += 'mature';
+      else if(y.phase === 'Contribution') cls += 'contribution';
+      else if(y.phase === 'Growth') cls += 'growth';
+      else cls += 'payout';
+      seg.className = cls;
+      seg.title = 'Year ' + y.year;
+      bar.appendChild(seg);
+    });
+    document.getElementById('timelineTag').textContent = 'Years 1–' + totalYears;
+  }
+
+  function drawChart(sim){
+    const svg = document.getElementById('chartSvg');
+    const W = 440, H = 200, padL = 44, padR = 10, padT = 12, padB = 22;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const years = sim.years;
+    const maxBal = Math.max(...years.map(y=>y.balance)) * 1.08;
+
+    function x(i){ return padL + (i/(years.length-1)) * plotW; }
+    function yy(v){ return padT + plotH - (v/maxBal) * plotH; }
+
+    let svgParts = [];
+
+    // payout-phase shading
+    const payoutStartIdx = sim.contribYears + sim.growthYears; // 0-indexed year at which payout begins
+    if(payoutStartIdx < years.length - 1){
+      const x1 = x(payoutStartIdx), x2 = x(years.length-1);
+      svgParts.push(`<rect x="${x1}" y="${padT}" width="${x2-x1}" height="${plotH}" fill="#C98A2C" opacity="0.08"/>`);
+    }
+
+    // gridlines + y labels
+    for(let g=0; g<=2; g++){
+      const val = maxBal * g/2;
+      const gy = yy(val);
+      svgParts.push(`<line x1="${padL}" y1="${gy}" x2="${W-padR}" y2="${gy}" stroke="#E7DCC6" stroke-width="1"/>`);
+      svgParts.push(`<text x="${padL-6}" y="${gy+3}" text-anchor="end" class="axis-label">${Math.round(val/1000)}k</text>`);
+    }
+
+    // area path
+    let path = `M ${x(0)} ${yy(0)} `;
+    years.forEach((y,i)=> path += `L ${x(i)} ${yy(y.balance)} `);
+    path += `L ${x(years.length-1)} ${yy(0)} Z`;
+    svgParts.push(`<path d="${path}" fill="#1F4E3D" opacity="0.12"/>`);
+
+    // line path
+    let line = '';
+    years.forEach((y,i)=>{ line += (i===0?'M':'L') + ' ' + x(i) + ' ' + yy(y.balance) + ' '; });
+    svgParts.push(`<path d="${line}" fill="none" stroke="#1F4E3D" stroke-width="2.2"/>`);
+
+    // dot at final year
+    const lastX = x(years.length-1), lastY = yy(years[years.length-1].balance);
+    svgParts.push(`<circle cx="${lastX}" cy="${lastY}" r="3.5" fill="#C98A2C" stroke="#1F4E3D" stroke-width="1"/>`);
+
+    // x axis labels at 1, mid, end
+    [0, Math.floor((years.length-1)/2), years.length-1].forEach(i=>{
+      svgParts.push(`<text x="${x(i)}" y="${H-6}" text-anchor="middle" class="axis-label">Yr ${years[i].year}</text>`);
+    });
+
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.innerHTML = svgParts.join('');
+  }
+
+  function drawTable(sim){
+    const body = document.getElementById('yearlyBody');
+    body.innerHTML = '';
+    sim.years.forEach(function(y){
+      const tr = document.createElement('tr');
+      tr.className = 'phase-' + y.phase.toLowerCase();
+      tr.innerHTML = `<td>${y.year}</td><td>${y.contrib?fmtRM(y.contrib).replace('RM ',''):'–'}</td>` +
+                      `<td>${y.withdrawal?fmtRM(y.withdrawal).replace('RM ',''):'–'}</td>` +
+                      `<td>${fmtRM(y.balance).replace('RM ','')}</td>`;
+      body.appendChild(tr);
+    });
+  }
+
+  function run(){
+    const amount = getAmount();
+    const equityReturn = (parseFloat(els.equityReturn.value) || 0) / 100;
+    const bondReturn = (parseFloat(els.bondReturn.value) || 0) / 100;
+    let equityAlloc = (parseFloat(els.equityAlloc.value) || 0) / 100;
+    let bondAlloc = (parseFloat(els.bondAlloc.value) || 0) / 100;
+    const contribYears = parseInt(els.contribYears.value) || 1;
+    const growthYears = parseInt(els.growthYears.value) || 0;
+    const payoutYears = parseInt(els.payoutYears.value) || 1;
+    const payoutRate = (parseFloat(els.payoutRate.value) || 0) / 100;
+
+    const allocSum = Math.round((equityAlloc + bondAlloc) * 1000) / 1000;
+    els.allocWarning.style.display = (allocSum !== 1) ? 'block' : 'none';
+
+    const sim = simulate({amount, equityReturn, bondReturn, equityAlloc, bondAlloc,
+                           contribYears, growthYears, payoutYears, payoutRate});
+
+    document.getElementById('heroValue').textContent = fmtRM(sim.finalBalance);
+    document.getElementById('heroMultiple').textContent = sim.multiple.toFixed(2) + 'x';
+    document.getElementById('heroWithdrawalsInline').textContent = fmtRM(sim.totalWithdrawals);
+    document.getElementById('statCapital').textContent = fmtRM(sim.totalCapital);
+    document.getElementById('statWithdrawals').textContent = fmtRM(sim.totalWithdrawals);
+    document.getElementById('statYears').textContent = (contribYears+growthYears+payoutYears) + ' yrs';
+
+    drawTimeline(sim);
+    drawChart(sim);
+    drawTable(sim);
+  }
+
+  populateAmountOptions();
+  run();
+})();
+</script>
+</body>
+</html>
